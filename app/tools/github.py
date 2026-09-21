@@ -1,30 +1,49 @@
-import os
 import requests
 
-def github_user(username: str) -> str:
-    token = os.getenv("GITHUB_TOKEN", "")
-    headers = {"Accept": "application/vnd.github+json"}
+from app.config import GITHUB_USERNAME
 
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+
+def github_user(user_input: str) -> str:
+    """
+    Fetch GitHub repository information.
+
+    The tool accepts a natural-language request and uses the
+    configured GitHub username instead of treating the whole
+    sentence as a username.
+    """
+
+    username = GITHUB_USERNAME
+
+    if not username:
+        return "GitHub username is not configured."
 
     try:
         response = requests.get(
-            f"https://api.github.com/users/{username}",
-            headers=headers,
-            timeout=15
+            f"https://api.github.com/users/{username}/repos",
+            timeout=10
         )
         response.raise_for_status()
-        data = response.json()
+
+        repositories = response.json()
+
+        if not repositories:
+            return f"No public repositories found for {username}."
+
+        repo_lines = []
+
+        for repo in repositories:
+            name = repo.get("name", "Unknown")
+            description = repo.get("description") or "No description"
+            language = repo.get("language") or "Unknown"
+
+            repo_lines.append(
+                f"- {name} | {language} | {description}"
+            )
 
         return (
-            f"Username: {data.get('login')}\n"
-            f"Name: {data.get('name')}\n"
-            f"Bio: {data.get('bio')}\n"
-            f"Public repositories: {data.get('public_repos')}\n"
-            f"Followers: {data.get('followers')}\n"
-            f"Following: {data.get('following')}\n"
-            f"Profile: {data.get('html_url')}"
+            f"GitHub repositories for {username}:\n"
+            + "\n".join(repo_lines)
         )
-    except Exception as exc:
+
+    except requests.RequestException as exc:
         return f"GitHub request failed: {exc}"
