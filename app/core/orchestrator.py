@@ -9,18 +9,73 @@ from app.core.tool_registry import get_tools
 
 
 class Orchestrator:
-    """
-    Coordinates planning, tool execution, and final response generation.
-    """
 
     def __init__(self):
+
         self.planner = Planner()
         self.executor = Executor(get_tools())
+
+        if not GROQ_API_KEY:
+            raise RuntimeError(
+                "GROQ_API_KEY is missing. Add it to your .env file."
+            )
 
         self.client = OpenAI(
             api_key=GROQ_API_KEY,
             base_url="https://api.groq.com/openai/v1"
         )
+
+    def compact_execution(
+        self,
+        execution: Dict[str, Any]
+    ):
+
+        compact_results = {}
+
+        for step_id, result in execution.get(
+            "results",
+            {}
+        ).items():
+
+            item = {
+                "success": result.get("success"),
+                "tool": result.get("tool"),
+                "task": result.get("task")
+            }
+
+            if not result.get("success"):
+
+                item["error"] = result.get("error")
+                compact_results[step_id] = item
+                continue
+
+            data = result.get("result")
+
+            if isinstance(data, dict):
+
+                compact_data = {}
+
+                for key, value in data.items():
+
+                    compact_data[key] = str(value)[:3000]
+
+                item["result"] = compact_data
+
+            elif isinstance(data, str):
+
+                item["result"] = data[:5000]
+
+            else:
+
+                item["result"] = data
+
+            compact_results[step_id] = item
+
+        return {
+            "success": execution.get("success"),
+            "goal": execution.get("goal"),
+            "results": compact_results
+        }
 
     def generate_final_response(
         self,
@@ -29,26 +84,31 @@ class Orchestrator:
         execution: Dict[str, Any]
     ) -> str:
 
+        compact_execution = self.compact_execution(
+            execution
+        )
+
         prompt = f"""
 You are AURA, a professional AI automation assistant.
 
-The user asked:
+User request:
 {user_input}
 
-AURA created this plan:
+Execution plan:
 {plan}
 
-The tool execution produced:
-{execution}
+Execution results:
+{compact_execution}
 
-Using the tool result, provide a clear and useful answer to the user.
+Answer the user's request using ONLY the execution results.
 
 Rules:
-- Do not mention internal implementation details unless necessary.
-- Do not invent information.
-- Use the actual tool result.
-- Be concise but helpful.
-- If the tool failed, clearly explain the problem.
+- Never invent information.
+- Never claim a failed step succeeded.
+- Never say you manually performed an action.
+- If a step failed, clearly mention the failure.
+- Do not expose API keys, tokens, or credentials.
+- Keep the answer concise and useful.
 """
 
         response = self.client.chat.completions.create(
@@ -56,28 +116,38 @@ Rules:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are AURA, an AI automation assistant."
+                    "content": "You are AURA's final response engine."
                 },
                 {
                     "role": "user",
                     "content": prompt
                 }
             ],
-            temperature=0.2
+            temperature=0.1,
+            max_tokens=700
         )
 
-        return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
 
-    def run(self, user_input: str) -> Dict[str, Any]:
+        if not content:
+            return "AURA could not generate a final response."
 
-        # 1. Create plan
-        plan = self.planner.create_plan(user_input)
+        return content.strip()
 
-        # 2. Execute selected tool
-        execution = self.executor.execute(plan)
+    def run(
+        self,
+        user_input: str
+    ) -> Dict[str, Any]:
 
-        # 3. Generate final response
-        final_response = self.generate_final_response(
+        plan = self.planner.create_plan(
+            user_input
+        )
+
+        execution = self.executor.execute(
+            plan
+        )
+
+        response = self.generate_final_response(
             user_input,
             plan,
             execution
@@ -87,5 +157,5 @@ Rules:
             "input": user_input,
             "plan": plan,
             "execution": execution,
-            "response": final_response
+            "response": response
         }

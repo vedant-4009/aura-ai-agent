@@ -1,34 +1,60 @@
-from app.agent import run_agent
+from app.core.orchestrator import Orchestrator
 
 
 def main():
     print("=" * 60)
-    print("AURA")
-    print("Personal AI Automation Assistant")
-    print("-" * 60)
-    print("Web • Files • GitHub • AI Tools")
-    print("Type 'exit' to quit")
+    print("                     AURA")
+    print("          AI Automation Assistant")
     print("=" * 60)
+    print("Type 'exit' to quit.")
+    print()
+
+    try:
+        aura = Orchestrator()
+    except Exception as exc:
+        print(f"Startup error: {exc}")
+        return
 
     while True:
+
         try:
-            user_input = input("\nYou: ").strip()
+            user_input = input("You: ").strip()
+
         except (KeyboardInterrupt, EOFError):
             print("\n\nAURA: Goodbye!")
-            break
-
-        if user_input.lower() in {"exit", "quit"}:
-            print("\nAURA: Goodbye!")
             break
 
         if not user_input:
             continue
 
+        if user_input.lower() in {
+            "exit",
+            "quit",
+            "bye"
+        }:
+            print("AURA: Goodbye! 👋")
+            break
+
+        print("\nAURA: Thinking...\n")
+
         try:
-            answer = run_agent(user_input)
-            print(f"\nAURA: {answer}")
+
+            result = aura.run(user_input)
+
+            response = result.get(
+                "response",
+                "I could not generate a response."
+            )
+
+            print(f"AURA: {response}")
+
         except Exception as exc:
-            print(f"\nAURA Error: {exc}")
+
+            print(
+                f"AURA: Something went wrong: {exc}"
+            )
+
+        print()
 
 
 if __name__ == "__main__":

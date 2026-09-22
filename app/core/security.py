@@ -10,23 +10,18 @@ class PermissionLevel(str, Enum):
 
 
 class SecurityManager:
-    """
-    Security layer for AURA tool execution.
-
-    Controls which permission level is required by each tool.
-    """
 
     def __init__(self):
-        self.tool_permissions: Dict[str, PermissionLevel] = {
+
+        self.tool_permissions = {
             "github": PermissionLevel.READ,
+            "github_readme": PermissionLevel.READ,
             "web": PermissionLevel.READ,
             "files": PermissionLevel.READ,
+            "llm": PermissionLevel.READ,
         }
 
     def get_permission(self, tool_name: str) -> PermissionLevel:
-        """
-        Return the permission level required by a tool.
-        """
 
         return self.tool_permissions.get(
             tool_name,
@@ -34,22 +29,17 @@ class SecurityManager:
         )
 
     def is_allowed(self, tool_name: str) -> bool:
-        """
-        Check whether a tool is currently allowed to run.
-        """
 
-        permission = self.get_permission(tool_name)
-
-        return permission == PermissionLevel.READ
+        return self.get_permission(
+            tool_name
+        ) == PermissionLevel.READ
 
     def check(self, tool_name: str) -> Dict:
-        """
-        Return a structured security decision.
-        """
 
         permission = self.get_permission(tool_name)
 
         if permission == PermissionLevel.READ:
+
             return {
                 "allowed": True,
                 "tool": tool_name,
