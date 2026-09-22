@@ -1,6 +1,6 @@
-from app.tools.files import list_files, read_file
-from app.tools.github import github_user, github_readme
-from app.tools.web import fetch_webpage
+from aura_app.tools.files import list_files, read_file
+from aura_app.tools.github import github_user, github_readme
+from aura_app.tools.web import fetch_webpage
 
 
 def get_tools():

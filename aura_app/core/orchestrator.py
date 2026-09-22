@@ -2,10 +2,10 @@ from typing import Dict, Any
 
 from openai import OpenAI
 
-from app.config import GROQ_API_KEY, MODEL
-from app.core.planner import Planner
-from app.core.executor import Executor
-from app.core.tool_registry import get_tools
+from aura_app.config import GROQ_API_KEY, MODEL
+from aura_app.core.planner import Planner
+from aura_app.core.executor import Executor
+from aura_app.core.tool_registry import get_tools
 
 
 class Orchestrator:

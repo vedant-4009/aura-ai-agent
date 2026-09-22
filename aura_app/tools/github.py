@@ -3,7 +3,7 @@ import re
 
 import requests
 
-from app.config import GITHUB_USERNAME, GITHUB_TOKEN
+from aura_app.config import GITHUB_USERNAME, GITHUB_TOKEN
 
 
 def get_headers():

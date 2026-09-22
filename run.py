@@ -1,4 +1,4 @@
-from app.core.orchestrator import Orchestrator
+from aura_app.core.orchestrator import Orchestrator
 
 
 def main():

@@ -1,10 +1,10 @@
 from openai import OpenAI
 import json
 
-from app.config import GROQ_API_KEY, MODEL
-from app.tools.files import list_files, read_file
-from app.tools.web import fetch_webpage
-from app.tools.github import github_user
+from aura_app.config import GROQ_API_KEY, MODEL
+from aura_app.tools.files import list_files, read_file
+from aura_app.tools.web import fetch_webpage
+from aura_app.tools.github import github_user
 
 
 if not GROQ_API_KEY:

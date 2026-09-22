@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from app.core.orchestrator import Orchestrator
+from aura_app.core.orchestrator import Orchestrator
 
 
 app = FastAPI(

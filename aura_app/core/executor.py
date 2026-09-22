@@ -3,8 +3,8 @@ from typing import Dict, Any, Callable
 
 from openai import OpenAI
 
-from app.config import GROQ_API_KEY, MODEL
-from app.core.security import SecurityManager
+from aura_app.config import GROQ_API_KEY, MODEL
+from aura_app.core.security import SecurityManager
 
 
 class Executor:

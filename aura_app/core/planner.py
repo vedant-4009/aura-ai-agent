@@ -3,7 +3,7 @@ from typing import Dict
 
 from openai import OpenAI
 
-from app.config import GROQ_API_KEY, MODEL
+from aura_app.config import GROQ_API_KEY, MODEL
 
 
 class Planner:
