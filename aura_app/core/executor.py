@@ -178,7 +178,8 @@ class Executor:
 
             return self.run_github_readme(
                 tool,
-                previous_results
+                previous_results,
+                task
             )
 
         return tool(task)
@@ -190,7 +191,8 @@ class Executor:
     def run_github_readme(
         self,
         tool: Callable,
-        previous_results: list
+        previous_results: list,
+        task: str = ""
     ):
 
         repository_names = (
@@ -198,6 +200,10 @@ class Executor:
                 previous_results
             )
         )
+
+        if not repository_names and task:
+            from aura_app.tools.github import extract_repo_names
+            repository_names = extract_repo_names(task)
 
         if not repository_names:
 
