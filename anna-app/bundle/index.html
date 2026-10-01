@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>LaunchGuard — AURA AI Agent</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f7fb;
+      color: #17181c;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 50px;
+    }
+
+    .header {
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: #17181c;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #666b76;
+      font-size: 14px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #e4e6ec;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(20, 25, 40, 0.05);
+      margin-bottom: 22px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      border: 1px solid #d9dce5;
+      border-radius: 12px;
+      padding: 14px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+      background: #fbfcfe;
+    }
+
+    textarea:focus {
+      border-color: #7a7f8d;
+      box-shadow: 0 0 0 3px rgba(100, 105, 120, 0.1);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 18px;
+      background: #17181c;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      color: #6b707c;
+      font-size: 13px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      border: 1px solid #e4e6ec;
+      border-radius: 12px;
+      padding: 16px;
+      background: #fafbfc;
+    }
+
+    .stat-number {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      color: #707582;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .repository {
+      font-size: 14px;
+      color: #555a66;
+      margin-bottom: 20px;
+    }
+
+    .findings {
+      display: grid;
+      gap: 12px;
+    }
+
+    .finding {
+      border: 1px solid #e3e5eb;
+      border-radius: 13px;
+      padding: 16px;
+      background: white;
+    }
+
+    .finding-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .severity {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #eef0f4;
+    }
+
+    .finding-title {
+      font-weight: 750;
+      font-size: 14px;
+    }
+
+    .finding-section {
+      margin-top: 10px;
+    }
+
+    .finding-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #747985;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .finding-text {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #444954;
+    }
+
+    .evidence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .evidence span {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #f1f2f5;
+      color: #555a65;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 45px 20px;
+      color: #777c87;
+    }
+
+    .error {
+      border: 1px solid #e1e3e8;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+      .app {
+        padding: 20px 14px;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script src="./app.js" type="module"></script>
+</head>
+
+<body>
+  <main class="app">
+
+    <header class="header">
+      <div class="brand">
+        <div class="logo">A</div>
+
+        <div>
+          <h1>AURA LaunchGuard</h1>
+          <p class="subtitle">
+            AI-powered release readiness analysis
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-title">Analyze a repository</div>
+
+      <textarea
+        id="prompt"
+        placeholder="Example: Analyze the GitHub repository vedant-4009/aura-ai-agent for release readiness"
+      ></textarea>
+
+      <div class="actions">
+        <button id="primary-btn">Analyze Repository</button>
+        <span id="status">Ready.</span>
+      </div>
+    </section>
+
+    <section id="results" class="panel">
+      <div class="empty">
+        Enter a repository request to start a LaunchGuard analysis.
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tool-dev-aura-ai-agent"
+version = "0.2.0"
+description = "AURA AI Agent Executa for Anna"
+requires-python = ">=3.10"
+dependencies = [
+    "openai",
+    "python-dotenv",
+    "requests",
+    "beautifulsoup4"
+]
+
+[project.scripts]
+"tool-dev-aura-ai-agent" = "aura_ai_agent_plugin:main"
+
+[tool.setuptools]
+py-modules = ["aura_ai_agent_plugin"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "aura_core*",
+    "tools*",
+    "analyzers*"
+]

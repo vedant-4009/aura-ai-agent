@@ -1,0 +1,37 @@
+{
+  "schema": 2,
+  "required_executas": [
+    {
+      "tool_id": "tool-dev-aura-ai-agent"
+    }
+  ],
+  "tags": ["aura-ai-agent"],
+  "ui": {
+    "bundle": {
+      "format": "static-spa",
+      "entry": "index.html",
+      "external_origins": []
+    },
+    "views": [
+      {
+        "name": "main",
+        "title": "aura-ai-agent",
+        "default": true,
+        "default_size": { "w": 480, "h": 360 },
+        "min_size": { "w": 320, "h": 240 }
+      }
+    ],
+    "host_api": {
+      "tools": ["tool-dev-aura-ai-agent"],
+      "storage": ["get", "set"],
+      "window": ["set_title", "ready"]
+    },
+    "csp_overrides": {},
+    "state_merge": "last_writer_wins"
+  },
+  "dev": {
+    "fixtures": ["fixtures/*.jsonl"],
+    "seed_storage": {},
+    "user_id": 1
+  }
+}
