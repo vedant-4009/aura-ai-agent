@@ -1,0 +1,22 @@
+{
+  "name": "tool-dev-aura-ai-agent",
+  "version": "0.2.0",
+  "host_capabilities": [],
+  "tools": [
+    {
+      "name": "run",
+      "description": "Run the AURA AI Agent with a natural-language request.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "description": "The user's request for AURA."
+          }
+        },
+        "required": ["input"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
