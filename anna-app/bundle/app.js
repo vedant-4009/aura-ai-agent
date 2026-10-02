@@ -1,6 +1,6 @@
 import { AnnaAppRuntime } from "/static/anna-apps/_sdk/latest/index.js";
 
-const TOOL_ID = "tool-dev-aura-ai-agent";
+const TOOL_ID = window.__ANNA_TOOL_IDS__["aura-ai-agent"];
 
 async function main() {
   const prompt = document.getElementById("prompt");
@@ -36,102 +36,279 @@ async function main() {
       .replaceAll("'", "&#039;");
   }
 
-  function renderAnalysis(data) {
-    const execution =
-      data?.execution?.results?.["1"]?.result;
+  function getSeverityClass(severity) {
+    return String(severity || "Informational")
+      .toLowerCase()
+      .replaceAll(" ", "-");
+  }
 
-    if (!execution?.success) {
-      results.innerHTML = `
-        <div class="error">
-          Analysis could not be completed.
+  function getSeverityIcon(severity) {
+    const icons = {
+      Critical: "🔴",
+      High: "🟠",
+      Medium: "🟡",
+      Low: "🔵",
+      Informational: "ℹ️"
+    };
+
+    return icons[severity] || "ℹ️";
+  }
+
+  function renderStat(label, value, className = "") {
+    return `
+      <div class="stat ${className}">
+        <div class="stat-number">
+          ${escapeHtml(value)}
         </div>
-      `;
-      return;
+
+        <div class="stat-label">
+          ${escapeHtml(label)}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSeveritySummary(severityCounts) {
+    const counts = {
+      Critical: severityCounts?.Critical ?? 0,
+      High: severityCounts?.High ?? 0,
+      Medium: severityCounts?.Medium ?? 0,
+      Low: severityCounts?.Low ?? 0,
+      Informational: severityCounts?.Informational ?? 0
+    };
+
+    return `
+      <div class="severity-summary">
+
+        <div class="severity-item critical">
+          <span class="severity-dot"></span>
+          <span>Critical</span>
+          <strong>${counts.Critical}</strong>
+        </div>
+
+        <div class="severity-item high">
+          <span class="severity-dot"></span>
+          <span>High</span>
+          <strong>${counts.High}</strong>
+        </div>
+
+        <div class="severity-item medium">
+          <span class="severity-dot"></span>
+          <span>Medium</span>
+          <strong>${counts.Medium}</strong>
+        </div>
+
+        <div class="severity-item low">
+          <span class="severity-dot"></span>
+          <span>Low</span>
+          <strong>${counts.Low}</strong>
+        </div>
+
+        <div class="severity-item informational">
+          <span class="severity-dot"></span>
+          <span>Informational</span>
+          <strong>${counts.Informational}</strong>
+        </div>
+
+      </div>
+    `;
+  }
+
+  function renderReadmeSummary(readmeAnalysis) {
+    if (!readmeAnalysis) {
+      return "";
     }
 
-    const findings = execution.findings || [];
-    const repository = execution.repository || "Unknown repository";
+    const sections = readmeAnalysis.sections || {};
 
-    const critical = findings.filter(
-      item => item.severity === "Critical"
-    ).length;
+    const sectionNames = [
+      ["description", "Description"],
+      ["installation", "Installation"],
+      ["usage", "Usage"],
+      ["configuration", "Configuration"],
+      ["deployment", "Deployment"]
+    ];
 
-    const high = findings.filter(
-      item => item.severity === "High"
-    ).length;
+    const items = sectionNames
+      .map(([key, label]) => {
+        const section = sections[key];
 
-    const medium = findings.filter(
-      item => item.severity === "Medium"
-    ).length;
-
-    results.innerHTML = `
-      <div class="panel-title">Release Readiness</div>
-
-      <div class="repository">
-        Repository:
-        <strong>${escapeHtml(repository)}</strong>
-      </div>
-
-      <div class="summary">
-        <div class="stat">
-          <div class="stat-number">${findings.length}</div>
-          <div class="stat-label">Total Findings</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-number">${critical + high}</div>
-          <div class="stat-label">Critical / High</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-number">${medium}</div>
-          <div class="stat-label">Medium</div>
-        </div>
-      </div>
-
-      <div class="findings">
-        ${
-          findings.length
-            ? findings.map(renderFinding).join("")
-            : `
-              <div class="empty">
-                No release-readiness findings detected.
-              </div>
-            `
+        if (!section) {
+          return "";
         }
+
+        const found = section.found;
+
+        return `
+          <div class="readme-check ${found ? "pass" : "missing"}">
+            <span class="readme-check-icon">
+              ${found ? "✓" : "!"}
+            </span>
+
+            <span class="readme-check-label">
+              ${escapeHtml(label)}
+            </span>
+
+            <span class="readme-check-status">
+              ${found ? "Detected" : "Missing"}
+            </span>
+          </div>
+        `;
+      })
+      .join("");
+
+    return `
+      <div class="analysis-section">
+
+        <div class="section-heading">
+          <div>
+            <div class="section-title">
+              README Documentation
+            </div>
+
+            <div class="section-subtitle">
+              Documentation quality analysis
+            </div>
+          </div>
+
+          <span class="section-badge">
+            ${escapeHtml(
+              readmeAnalysis.finding_count ?? 0
+            )} checks
+          </span>
+        </div>
+
+        <div class="readme-grid">
+          ${items}
+        </div>
+
+      </div>
+    `;
+  }
+
+  function renderSecuritySummary(secretScan) {
+    if (!secretScan) {
+      return "";
+    }
+
+    const secretsExposed = secretScan.secrets_exposed === true;
+    const findingCount = secretScan.finding_count ?? 0;
+
+    return `
+      <div class="security-panel ${
+        secretsExposed ? "security-risk" : "security-safe"
+      }">
+
+        <div class="security-icon">
+          ${secretsExposed ? "⚠" : "✓"}
+        </div>
+
+        <div class="security-content">
+
+          <div class="security-title">
+            Secret Scan
+          </div>
+
+          <div class="security-text">
+            ${
+              secretsExposed
+                ? "Potential secret exposure requires attention."
+                : "No secret-prone filenames detected."
+            }
+          </div>
+
+          <div class="security-meta">
+            Scan:
+            ${escapeHtml(
+              secretScan.scan_type ||
+                "safe_secret_filename_scan"
+            )}
+
+            · Findings:
+            ${escapeHtml(findingCount)}
+          </div>
+
+        </div>
+
       </div>
     `;
   }
 
   function renderFinding(finding) {
-    const severity = escapeHtml(finding.severity);
-    const title = escapeHtml(finding.title);
-    const fact = escapeHtml(finding.fact);
-    const recommendation = escapeHtml(
-      finding.recommendation
-    );
+    const severity =
+      finding?.severity || "Informational";
 
-    const evidence = (finding.evidence || [])
-      .map(
-        item =>
-          `<span>${escapeHtml(item)}</span>`
-      )
-      .join("");
+    const severityClass =
+      getSeverityClass(severity);
+
+    const icon =
+      getSeverityIcon(severity);
+
+    const title =
+      escapeHtml(
+        finding?.title ||
+          "Untitled finding"
+      );
+
+    const fact =
+      escapeHtml(
+        finding?.fact ||
+          "No fact recorded."
+      );
+
+    const recommendation =
+      escapeHtml(
+        finding?.recommendation ||
+          "No recommendation recorded."
+      );
+
+    const evidence = Array.isArray(
+      finding?.evidence
+    )
+      ? finding.evidence
+      : [];
+
+    const evidenceHtml = evidence.length
+      ? evidence
+          .map(
+            item => `
+              <div class="evidence-item">
+                ${escapeHtml(item)}
+              </div>
+            `
+          )
+          .join("")
+      : `
+          <div class="evidence-item">
+            No evidence recorded.
+          </div>
+        `;
 
     return `
-      <article class="finding">
+      <article class="finding ${severityClass}">
 
         <div class="finding-top">
-          <span class="severity">
-            ${severity}
+
+          <div class="finding-heading">
+
+            <span class="finding-icon">
+              ${icon}
+            </span>
+
+            <span class="finding-title">
+              ${title}
+            </span>
+
+          </div>
+
+          <span class="severity ${severityClass}">
+            ${escapeHtml(severity)}
           </span>
 
-          <span class="finding-title">
-            ${title}
-          </span>
         </div>
 
         <div class="finding-section">
+
           <div class="finding-label">
             Fact
           </div>
@@ -139,88 +316,311 @@ async function main() {
           <div class="finding-text">
             ${fact}
           </div>
+
         </div>
 
         <div class="finding-section">
+
           <div class="finding-label">
             Evidence
           </div>
 
           <div class="evidence">
-            ${evidence || "<span>No evidence recorded</span>"}
+            ${evidenceHtml}
           </div>
+
         </div>
 
         <div class="finding-section">
+
           <div class="finding-label">
             Recommendation
           </div>
 
-          <div class="finding-text">
+          <div class="recommendation">
             ${recommendation}
           </div>
+
         </div>
 
       </article>
     `;
   }
 
-  button.addEventListener("click", async () => {
-    const input = prompt.value.trim();
+  function renderAnalysis(data) {
+    const execution =
+      data?.execution?.results?.["1"]?.result;
 
-    if (!input) {
-      status.textContent = "Please enter a repository request.";
+    if (!execution?.success) {
+      results.innerHTML = `
+        <div class="error">
+          <strong>Analysis could not be completed.</strong>
+          <div>
+            The AURA execution did not return a valid
+            release-readiness result.
+          </div>
+        </div>
+      `;
+
       return;
     }
 
-    button.disabled = true;
-    status.textContent = "Analyzing repository...";
+    const findings =
+      Array.isArray(execution.findings)
+        ? execution.findings
+        : [];
+
+    const repository =
+      execution.repository ||
+      "Unknown repository";
+
+    const severityCounts =
+      execution.severity_counts || {};
+
+    const readmeAnalysis =
+      execution.readme_analysis || null;
+
+    const secretScan =
+      execution.secret_scan || null;
+
+    const critical =
+      severityCounts.Critical ??
+      findings.filter(
+        item => item.severity === "Critical"
+      ).length;
+
+    const high =
+      severityCounts.High ??
+      findings.filter(
+        item => item.severity === "High"
+      ).length;
+
+    const medium =
+      severityCounts.Medium ??
+      findings.filter(
+        item => item.severity === "Medium"
+      ).length;
+
+    const low =
+      severityCounts.Low ??
+      findings.filter(
+        item => item.severity === "Low"
+      ).length;
+
+    const informational =
+      severityCounts.Informational ??
+      findings.filter(
+        item => item.severity === "Informational"
+      ).length;
 
     results.innerHTML = `
-      <div class="empty">
-        AURA is analyzing the repository and collecting evidence...
+
+      <div class="analysis-header">
+
+        <div>
+
+          <div class="panel-title">
+            Release Readiness
+          </div>
+
+          <div class="repository">
+            Repository:
+            <strong>
+              ${escapeHtml(repository)}
+            </strong>
+          </div>
+
+        </div>
+
+        <div class="analysis-status">
+          ✓ Analysis complete
+        </div>
+
       </div>
+
+      <div class="summary">
+
+        ${renderStat(
+          "Total Findings",
+          findings.length
+        )}
+
+        ${renderStat(
+          "Critical / High",
+          critical + high,
+          critical + high > 0
+            ? "danger"
+            : "safe"
+        )}
+
+        ${renderStat(
+          "Medium",
+          medium,
+          medium > 0
+            ? "warning"
+            : "safe"
+        )}
+
+        ${renderStat(
+          "Low",
+          low
+        )}
+
+        ${renderStat(
+          "Informational",
+          informational
+        )}
+
+      </div>
+
+      ${renderSeveritySummary(
+        severityCounts
+      )}
+
+      ${renderSecuritySummary(
+        secretScan
+      )}
+
+      ${renderReadmeSummary(
+        readmeAnalysis
+      )}
+
+      <div class="analysis-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <div class="section-title">
+              Findings
+            </div>
+
+            <div class="section-subtitle">
+              Evidence-based release readiness observations
+            </div>
+
+          </div>
+
+          <span class="section-badge">
+            ${findings.length} total
+          </span>
+
+        </div>
+
+        <div class="findings">
+
+          ${
+            findings.length
+              ? findings
+                  .map(renderFinding)
+                  .join("")
+              : `
+                <div class="empty">
+                  No release-readiness findings detected.
+                </div>
+              `
+          }
+
+        </div>
+
+      </div>
+
     `;
+  }
 
-    try {
-      const result = await anna.tools.invoke({
-        tool_id: TOOL_ID,
-        method: "run",
-        args: {
-          input
-        }
-      });
+  button.addEventListener(
+    "click",
+    async () => {
+      const input =
+        prompt.value.trim();
 
-      if (result?.success === false) {
-        throw new Error(
-          result.error || "AURA execution failed."
-        );
+      if (!input) {
+        status.textContent =
+          "Please enter a repository request.";
+
+        return;
       }
 
-      const data = result?.data ?? result;
+      button.disabled = true;
 
-      renderAnalysis(data);
-
-      status.textContent = "Analysis completed.";
-
-      await anna.storage.set({
-        key: "aura-ai-agent:last",
-        value: Date.now()
-      });
-
-    } catch (error) {
-      status.textContent = "Analysis failed.";
+      status.textContent =
+        "Analyzing repository...";
 
       results.innerHTML = `
-        <div class="error">
-          <strong>Error:</strong>
-          ${escapeHtml(error.message)}
+        <div class="loading-state">
+
+          <div class="loading-spinner"></div>
+
+          <div>
+            <strong>
+              AURA is analyzing the repository
+            </strong>
+
+            <div>
+              Collecting repository evidence and
+              checking release readiness...
+            </div>
+          </div>
+
         </div>
       `;
-    } finally {
-      button.disabled = false;
+
+      try {
+        const result =
+          await anna.tools.invoke({
+            tool_id: TOOL_ID,
+            method: "run",
+            args: {
+              input
+            }
+          });
+
+        if (result?.success === false) {
+          throw new Error(
+            result.error ||
+              "AURA execution failed."
+          );
+        }
+
+        const data =
+          result?.data ?? result;
+
+        renderAnalysis(data);
+
+        status.textContent =
+          "Analysis completed.";
+
+        await anna.storage.set({
+          key: "aura-ai-agent:last",
+          value: Date.now()
+        });
+
+      } catch (error) {
+        status.textContent =
+          "Analysis failed.";
+
+        results.innerHTML = `
+          <div class="error">
+
+            <strong>
+              Analysis failed
+            </strong>
+
+            <div>
+              ${escapeHtml(
+                error?.message ||
+                  "Unknown error."
+              )}
+            </div>
+
+          </div>
+        `;
+      } finally {
+        button.disabled = false;
+      }
     }
-  });
+  );
 }
 
 main();
+

@@ -1,289 +1,862 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
 
-  <title>LaunchGuard — AURA AI Agent</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>AURA LaunchGuard</title>
 
   <style>
     * {
       box-sizing: border-box;
     }
 
+    :root {
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #111827;
+      --primary-soft: #eef2ff;
+      --green: #15803d;
+      --green-soft: #ecfdf3;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --orange: #ea580c;
+      --orange-soft: #fff7ed;
+      --yellow: #ca8a04;
+      --yellow-soft: #fefce8;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --info: #475569;
+      --info-soft: #f1f5f9;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f6f7fb;
-      color: #17181c;
+      padding: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    textarea {
+      font: inherit;
     }
 
     .app {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 32px 24px 50px;
+      min-height: 100vh;
+      padding: 28px;
     }
 
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* --------------------------------------------------
+       Header
+    -------------------------------------------------- */
+
     .header {
-      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 14px;
     }
 
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: grid;
-      place-items: center;
-      background: #17181c;
-      color: white;
-      font-weight: 800;
-      font-size: 18px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: -0.6px;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: #666b76;
-      font-size: 14px;
-    }
-
-    .panel {
-      background: white;
-      border: 1px solid #e4e6ec;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 8px 30px rgba(20, 25, 40, 0.05);
-      margin-bottom: 22px;
-    }
-
-    .panel-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 110px;
-      resize: vertical;
-      border: 1px solid #d9dce5;
-      border-radius: 12px;
-      padding: 14px;
-      font: inherit;
-      font-size: 14px;
-      outline: none;
-      background: #fbfcfe;
-    }
-
-    textarea:focus {
-      border-color: #7a7f8d;
-      box-shadow: 0 0 0 3px rgba(100, 105, 120, 0.1);
-    }
-
-    .actions {
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 10px;
-      padding: 11px 18px;
-      background: #17181c;
+      justify-content: center;
+      background: #111827;
       color: white;
-      font-weight: 700;
-      cursor: pointer;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.04em;
     }
 
-    button:hover {
-      opacity: 0.9;
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    #status {
-      color: #6b707c;
+    .brand-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
       font-size: 13px;
     }
 
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid #bbf7d0;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* --------------------------------------------------
+       Hero / Input
+    -------------------------------------------------- */
+
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.2;
+      letter-spacing: -0.035em;
+    }
+
+    .hero-description {
+      margin: 8px 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    #prompt {
+      width: 100%;
+      min-height: 48px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      outline: none;
+      color: var(--text);
+      background: var(--surface);
+      transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    #prompt:focus {
+      border-color: #9ca3af;
+      box-shadow: 0 0 0 3px #f3f4f6;
+    }
+
+    #primary-btn {
+      min-width: 145px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 18px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-weight: 750;
+      transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+    }
+
+    #primary-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    #primary-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    #status {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* --------------------------------------------------
+       Results
+    -------------------------------------------------- */
+
+    #results {
+      width: 100%;
+    }
+
+    .analysis-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    .repository {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .repository strong {
+      color: var(--text);
+    }
+
+    .analysis-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid #bbf7d0;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* --------------------------------------------------
+       Summary
+    -------------------------------------------------- */
+
     .summary {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .stat {
-      border: 1px solid #e4e6ec;
-      border-radius: 12px;
+      min-height: 92px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       padding: 16px;
-      background: #fafbfc;
     }
 
     .stat-number {
       font-size: 25px;
+      line-height: 1;
       font-weight: 800;
+      letter-spacing: -0.035em;
     }
 
     .stat-label {
-      color: #707582;
+      margin-top: 8px;
+      color: var(--muted);
       font-size: 12px;
-      margin-top: 4px;
+      font-weight: 600;
     }
 
-    .repository {
-      font-size: 14px;
-      color: #555a66;
-      margin-bottom: 20px;
+    .stat.safe .stat-number {
+      color: var(--green);
     }
+
+    .stat.warning .stat-number {
+      color: var(--yellow);
+    }
+
+    .stat.danger .stat-number {
+      color: var(--red);
+    }
+
+    /* --------------------------------------------------
+       Severity Summary
+    -------------------------------------------------- */
+
+    .severity-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .severity-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 9px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .severity-item strong {
+      color: var(--text);
+      margin-left: 2px;
+    }
+
+    .severity-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+
+    .severity-item.critical .severity-dot {
+      background: var(--red);
+    }
+
+    .severity-item.high .severity-dot {
+      background: var(--orange);
+    }
+
+    .severity-item.medium .severity-dot {
+      background: var(--yellow);
+    }
+
+    .severity-item.low .severity-dot {
+      background: var(--blue);
+    }
+
+    .severity-item.informational .severity-dot {
+      background: var(--info);
+    }
+
+    /* --------------------------------------------------
+       Analysis Sections
+    -------------------------------------------------- */
+
+    .analysis-section {
+      margin-top: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .section-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section-badge {
+      padding: 6px 9px;
+      border-radius: 8px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* --------------------------------------------------
+       README
+    -------------------------------------------------- */
+
+    .readme-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .readme-check {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 92px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+    }
+
+    .readme-check-icon {
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .readme-check.pass {
+      background: var(--green-soft);
+      border-color: #bbf7d0;
+    }
+
+    .readme-check.pass .readme-check-icon {
+      background: #dcfce7;
+      color: var(--green);
+    }
+
+    .readme-check.missing {
+      background: var(--yellow-soft);
+      border-color: #fde68a;
+    }
+
+    .readme-check.missing .readme-check-icon {
+      background: #fef3c7;
+      color: var(--yellow);
+    }
+
+    .readme-check-label {
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .readme-check-status {
+      margin-top: auto;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* --------------------------------------------------
+       Security
+    -------------------------------------------------- */
+
+    .security-panel {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-top: 18px;
+      padding: 15px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .security-safe {
+      background: var(--green-soft);
+      border-color: #bbf7d0;
+    }
+
+    .security-risk {
+      background: var(--red-soft);
+      border-color: #fecaca;
+    }
+
+    .security-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: white;
+      font-weight: 800;
+    }
+
+    .security-safe .security-icon {
+      color: var(--green);
+    }
+
+    .security-risk .security-icon {
+      color: var(--red);
+    }
+
+    .security-title {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .security-text {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .security-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    /* --------------------------------------------------
+       Findings
+    -------------------------------------------------- */
 
     .findings {
-      display: grid;
-      gap: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .finding {
-      border: 1px solid #e3e5eb;
-      border-radius: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       padding: 16px;
-      background: white;
     }
 
     .finding-top {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 15px;
     }
 
-    .severity {
-      display: inline-block;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      background: #eef0f4;
+    .finding-heading {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
     }
 
-    .finding-title {
-      font-weight: 750;
+    .finding-icon {
+      flex-shrink: 0;
       font-size: 14px;
     }
 
+    .finding-title {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .severity {
+      flex-shrink: 0;
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .severity.critical {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .severity.high {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .severity.medium {
+      background: var(--yellow-soft);
+      color: var(--yellow);
+    }
+
+    .severity.low {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .severity.informational {
+      background: var(--info-soft);
+      color: var(--info);
+    }
+
     .finding-section {
-      margin-top: 10px;
+      margin-top: 13px;
     }
 
     .finding-label {
-      font-size: 11px;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 10px;
       font-weight: 800;
-      color: #747985;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      letter-spacing: 0.07em;
     }
 
     .finding-text {
-      font-size: 13px;
+      color: #374151;
+      font-size: 12px;
       line-height: 1.55;
-      color: #444954;
     }
 
     .evidence {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      flex-direction: column;
+      gap: 5px;
     }
 
-    .evidence span {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    .evidence-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      color: #4b5563;
       font-size: 11px;
-      padding: 4px 7px;
-      border-radius: 6px;
-      background: #f1f2f5;
-      color: #555a65;
+      line-height: 1.5;
     }
 
-    .empty {
+    .recommendation {
+      padding: 10px 11px;
+      border-radius: 9px;
+      background: #f8fafc;
+      border-left: 3px solid #94a3b8;
+      color: #374151;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    /* --------------------------------------------------
+       Empty / Loading / Error
+    -------------------------------------------------- */
+
+    .empty,
+    .error,
+    .loading-state {
+      padding: 24px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
       text-align: center;
-      padding: 45px 20px;
-      color: #777c87;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     .error {
-      border: 1px solid #e1e3e8;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 13px;
+      background: var(--red-soft);
+      border-color: #fecaca;
+      color: #991b1b;
+      text-align: left;
     }
 
-    @media (max-width: 700px) {
+    .error strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--red);
+    }
+
+    .loading-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .loading-state strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .loading-spinner {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 3px solid #e5e7eb;
+      border-top-color: #111827;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* --------------------------------------------------
+       Responsive
+    -------------------------------------------------- */
+
+    @media (max-width: 900px) {
+      .summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .readme-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 650px) {
       .app {
-        padding: 20px 14px;
+        padding: 16px;
+      }
+
+      .header {
+        align-items: flex-start;
+      }
+
+      .status-pill {
+        display: none;
+      }
+
+      .hero {
+        padding: 18px;
+      }
+
+      .input-row {
+        flex-direction: column;
+      }
+
+      #primary-btn {
+        min-height: 46px;
       }
 
       .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .readme-grid {
         grid-template-columns: 1fr;
+      }
+
+      .analysis-header,
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .finding-top {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
   </style>
-
-  <script src="./app.js" type="module"></script>
 </head>
 
 <body>
   <main class="app">
 
-    <header class="header">
-      <div class="brand">
-        <div class="logo">A</div>
+    <div class="container">
 
-        <div>
-          <h1>AURA LaunchGuard</h1>
-          <p class="subtitle">
-            AI-powered release readiness analysis
-          </p>
+      <header class="header">
+
+        <div class="brand">
+
+          <div class="brand-mark">
+            AG
+          </div>
+
+          <div>
+
+            <div class="brand-name">
+              AURA LaunchGuard
+            </div>
+
+            <div class="brand-subtitle">
+              AI-powered release readiness analysis
+            </div>
+
+          </div>
+
         </div>
-      </div>
-    </header>
 
-    <section class="panel">
-      <div class="panel-title">Analyze a repository</div>
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          Read-only analysis
+        </div>
 
-      <textarea
-        id="prompt"
-        placeholder="Example: Analyze the GitHub repository vedant-4009/aura-ai-agent for release readiness"
-      ></textarea>
+      </header>
 
-      <div class="actions">
-        <button id="primary-btn">Analyze Repository</button>
-        <span id="status">Ready.</span>
-      </div>
-    </section>
+      <section class="hero">
 
-    <section id="results" class="panel">
-      <div class="empty">
-        Enter a repository request to start a LaunchGuard analysis.
-      </div>
-    </section>
+        <h1 class="hero-title">
+          Analyze a repository
+        </h1>
+
+        <p class="hero-description">
+          Analyze a GitHub repository for documentation,
+          dependencies, tests, CI/CD, secrets, deployment
+          configuration, and other release-readiness signals.
+        </p>
+
+        <div class="input-row">
+
+          <textarea
+            id="prompt"
+            rows="2"
+            placeholder="Example: Analyze the GitHub repository vedant-4009/aura-ai-agent for release readiness"
+          ></textarea>
+
+          <button id="primary-btn">
+            Analyze Repository
+          </button>
+
+        </div>
+
+        <div id="status">
+          Ready.
+        </div>
+
+      </section>
+
+      <section id="results">
+
+        <div class="empty">
+          Enter a repository request above to begin
+          release-readiness analysis.
+        </div>
+
+      </section>
+
+    </div>
 
   </main>
+
+  <script src="./anna-tool-ids.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
+
+

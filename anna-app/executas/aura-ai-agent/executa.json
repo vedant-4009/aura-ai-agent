@@ -1,0 +1,9 @@
+{
+  "slug": "aura-ai-agent",
+  "name": "AURA LaunchGuard",
+  "version": "0.2.0",
+  "executa_type": "tool",
+  "description": "AI-powered release readiness analysis for GitHub repositories.",
+  "tool_id": "tool-dev-aura-ai-agent",
+  "type": "python"
+}

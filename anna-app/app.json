@@ -1,6 +1,12 @@
 {
-  "name": "aura-ai-agent",
-  "tagline": "TODO",
-  "description": "TODO",
-  "category": "productivity"
+  "name": "AURA LaunchGuard",
+  "slug": "aura-ai-agent",
+  "tagline": "AI-powered release readiness analysis",
+  "description": "Analyze GitHub repositories for release readiness using evidence-based checks across documentation, dependencies, tests, CI/CD, environment configuration, secrets, deployment configuration, and source structure.",
+  "category": "productivity",
+  "bundled_executas": {
+    "aura-ai-agent": {
+      "path": "./executas/aura-ai-agent"
+    }
+  }
 }

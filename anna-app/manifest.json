@@ -2,10 +2,14 @@
   "schema": 2,
   "required_executas": [
     {
-      "tool_id": "tool-dev-aura-ai-agent"
+      "tool_id": "bundled:aura-ai-agent",
+      "min_version": "0.2.0",
+      "version": "latest"
     }
   ],
-  "tags": ["aura-ai-agent"],
+  "tags": [
+    "aura-ai-agent"
+  ],
   "ui": {
     "bundle": {
       "format": "static-spa",
@@ -17,21 +21,40 @@
         "name": "main",
         "title": "aura-ai-agent",
         "default": true,
-        "default_size": { "w": 480, "h": 360 },
-        "min_size": { "w": 320, "h": 240 }
+        "default_size": {
+          "w": 480,
+          "h": 360
+        },
+        "min_size": {
+          "w": 320,
+          "h": 240
+        }
       }
     ],
     "host_api": {
-      "tools": ["tool-dev-aura-ai-agent"],
-      "storage": ["get", "set"],
-      "window": ["set_title", "ready"]
+      "tools": [
+        "bundled:aura-ai-agent"
+      ],
+      "storage": [
+        "get",
+        "set"
+      ],
+      "window": [
+        "set_title",
+        "ready"
+      ]
     },
     "csp_overrides": {},
     "state_merge": "last_writer_wins"
   },
   "dev": {
-    "fixtures": ["fixtures/*.jsonl"],
+    "fixtures": [
+      "fixtures/*.jsonl"
+    ],
     "seed_storage": {},
     "user_id": 1
-  }
+  },
+  "permissions": [
+    "tools.invoke"
+  ]
 }
